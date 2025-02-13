@@ -1,14 +1,18 @@
 "use client"
 import React from 'react'
 import Header from '../components/Header';
+import Main from '../components/Main';
+import Sidebar from '../components/Sidebar';
 import styled from 'styled-components';
 
 
 const Dashboard = ({ address }) => {
     return (
         <Wrapper>
+            <Sidebar />
             <MainContainer>
-                <Header />
+                <Header walletAddress={address}/>
+                <Main />
             </MainContainer>
         </Wrapper>
 
@@ -23,6 +27,7 @@ const Wrapper = styled.div`
     width: 100vw;
     background-color: #0a0b0d;
     color: white;
+    overflow: auto;
 `
 
 const MainContainer = styled.div`
