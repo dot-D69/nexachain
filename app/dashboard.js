@@ -1,18 +1,75 @@
 "use client"
-import React from 'react'
+import React, {useEffect, useState} from "react";
 import Header from '../components/Header';
 import Main from '../components/Main';
 import Sidebar from '../components/Sidebar';
 import styled from 'styled-components';
+import {ethers} from "ethers"
+import {ChainId, ThirdwebSDK} from '@thirdweb-dev/sdk'
+
+const privateKey = process.env.NEXT_PUBLIC_METAMASK_KEY;
+
+
+if (!privateKey) {
+    throw new Error("❌ Private Key is missing! Check your .env file.");
+}
+
+
+const provider = new ethers.providers.StaticJsonRpcProvider(
+    "https://sepolia.infura.io/v3/7e9f29ab84eb48e8bf3a6bd710538914",
+    {
+    chainId: 11155111,
+    name: "sepolia"
+    }
+);
+
+
+const sdk = new ThirdwebSDK(
+    new ethers.Wallet(privateKey, provider),{clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID}
+);
 
 
 const Dashboard = ({ address }) => {
+    const [sanityTokens,setSanityTokens] = useState([]);
+    const[thirdWebTokens,setThirdWebTokens] = useState([]);
+    useEffect(() => {
+        const getSanityAndThirdWebTokens = async () => {
+            const coins = await fetch("https://okyxh4w5.api.sanity.io/v2025-02-14/data/query/production?query=*%5B_type%3D%3D%27coins%27%5D%7B%0A++name%2C%0A++usdPrice%2C%0A++contractAddress%2C%0A++symbol%2C%0A++logo%0A%7D&perspective=published");  
+            const sanityTokens = (await coins.json()).result;
+
+            setSanityTokens(sanityTokens);
+            const thirdWebTokens = await Promise.all(
+            sanityTokens.map(async (token) =>{
+                const contract = await sdk.getContract(token.contractAddress).then(module =>module)
+                return contract.contractWrapper.readContract.address;
+            } )
+            );
+            // const thirdWebTokens = await Promise.all(
+            //     sanityTokens.map(async (token) => {
+            //       try {
+            //         // This returns a Thirdweb contract instance
+            //         const contract = await sdk.getContract(token.contractAddress);
+            //         return contract;
+            //       } catch (err) {
+            //         console.warn(`Could not fetch contract at ${token.contractAddress}`, err);
+            //         return null; // Return null if the contract can't be loaded
+            //       }
+            //     })
+            //   );
+            //   setThirdWebTokens(thirdWebTokens.filter(Boolean)); // Filter out any null contracts
+              
+            setThirdWebTokens(thirdWebTokens)
+        }
+        getSanityAndThirdWebTokens();
+    }, []);
+    console.log('Sanity ->', sanityTokens)
+    console.log('Thirdweb ->', thirdWebTokens)
     return (
         <Wrapper>
             <Sidebar />
             <MainContainer>
-                <Header walletAddress={address}/>
-                <Main />
+                <Header walletAddress={address} sanityTokens={sanityTokens} thirdWebTokens= {thirdWebTokens}/>
+                <Main walletAddress={address} sanityTokens={sanityTokens} thirdWebTokens= {thirdWebTokens} />
             </MainContainer>
         </Wrapper>
 
