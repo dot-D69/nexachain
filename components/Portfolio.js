@@ -1,16 +1,19 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import styled from "styled-components";
 import { coins } from "../static/coin";
 import Coin from "./Coin";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import BalanceChart from "./BalanceChart";
 
-const Portfolio = () => {
+
+
+
+const Portfolio = ({thirdWebTokens, sanityTokens, walletAddress}) => {
   return (
     <Wrapper>
       <Content>
         {/* Add Balance chart at top */}
-        <BalanceChart coins={coins}/>
+        <BalanceChart coins={coins} walletAddress={walletAddress} sanityTokens={sanityTokens} thirdWebTokens= {thirdWebTokens}  />
       <PortfolioTable>
         {/* Table Title */}
         <TableItem>
