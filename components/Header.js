@@ -1,9 +1,24 @@
 "use client"
 
-import React from 'react'
+import React, {useState,useEffect} from 'react'
 import styled from 'styled-components'
+import Modal from 'react-modal'
+import { useRouter } from 'next/navigation'
+import TransModal from './modal/TransModal'
+import Link from 'next/link'
+
+Modal.setAppElement('body')
 
 const Header = ({walletAddress, connectWallet}) => {
+  const router = useRouter();
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  useEffect(() => {
+    if (modalIsOpen) {
+      router.push('/?transfer=1');
+    } else {
+      router.push('/');
+    }
+  }, [modalIsOpen, router]);
     return( 
         <Wrapper>
             <Title>Assests</Title>
@@ -17,8 +32,17 @@ const Header = ({walletAddress, connectWallet}) => {
                 <Button style={{ backgroundColor: '#3773f5', color: '#000'}}>
                 Buy/Sell
                 </Button>
-                <Button>Send/ Receive</Button>
+                <Button onClick={() => setModalIsOpen(true)}>Send/ Receive</Button>
             </ButtonsContainer>
+
+            <Modal isOpen={modalIsOpen}
+              onRequestClose={() => {setModalIsOpen(false);
+              }}
+              style={modalStyles}
+            >
+              <TransModal/>
+              <CloseButton onClick={() => setModalIsOpen(false)}>Close</CloseButton>
+            </Modal>
             
         </Wrapper>
         
@@ -80,3 +104,30 @@ const WalletAddress = styled.div`
   font-size: 0.8rem;
   /* color: #8a919e; */
 `
+
+const modalStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    background: "#0a0b0d",
+    padding: "20px",
+    borderRadius: "10px",
+  },
+  overlay: {
+    backgroundColor: 'rgba(10,11,13,0.75)'
+  },
+};
+
+const CloseButton = styled.button`
+  margin-top: 20px;
+  padding: 10px;
+  background: #ff3b3b;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+`;
