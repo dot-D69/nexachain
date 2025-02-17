@@ -1,8 +1,10 @@
 import React,{useEffect, useState} from "react";
 import styled from "styled-components";
 import {FaWallet} from 'react-icons/fa';
+import {ethers} from "ethers";
 import imageUrlBuilder from '@sanity/image-url'
 import {client} from '../../library/sanity'
+import { isAddress } from "ethers/lib/utils";
 
 
 const Transfer =({selectedToken, setAction, thirdWebTokens, walletAddress}) =>{
@@ -11,6 +13,7 @@ const Transfer =({selectedToken, setAction, thirdWebTokens, walletAddress}) =>{
     const [imageUrl,setImageUrl] =useState(null)
     const [activetwToken, setActivetwToken] = useState()
     const  [balance, setBalance] = useState('Fetching...')
+    const[isAddressValid, setIsAddressValid]= useState(true);
 
     useEffect(() =>{
         const activeToken = thirdWebTokens.find(token=> token.address == selectedToken.contractAddress)
@@ -32,18 +35,33 @@ const Transfer =({selectedToken, setAction, thirdWebTokens, walletAddress}) =>{
         }
     },[activetwToken])
 
+    const validateAddress = (address) =>{
+      if(!address){
+        setIsAddressValid(true);
+        return;
+      }
+      setIsAddressValid(ethers.utils.isAddress(address));
+    };
+
 // Exchange
 
     const sendToken = async (amount,recipient) =>{
         console.log("Sending Token.....")
 
-        if(activetwToken && amount && recipient){
+        if (!isAddressValid || !amount || !recipient) {
+          console.error("Invalid input. Check recipient and amount.")
+          return;
+      }
+
+        try{
+            setAction('Transferring')
             const ex = await activetwToken.erc20.transfer(recipient,amount)
             console.log("Transaction Successful:", ex);
+
             setAction('Transferred');
         }
-        else{
-            console.error('Missing data: Ensure token, amount, and recipient are provided.')
+        catch(error){
+            console.error('Transaction failed.', error);
         }
     }
 
@@ -55,16 +73,26 @@ const Transfer =({selectedToken, setAction, thirdWebTokens, walletAddress}) =>{
                     onChange={(e) => setAmount(e.target.value) }/>
                     <span>{selectedToken.symbol}</span>
                 </FlexInputContainer>
-                <Warning style={{color:amount && '#0a0b0d'}}> Amount is a required field </Warning>
+                {!amount && <Warning style={{color:amount && '#0a0b0d'}}> Amount is a required field </Warning>}
             </Amount>
+
             <TransferForm>
                 <Row>
                     <FieldName>To</FieldName>
                     <Icon>
                         <FaWallet/>
                     </Icon>
-                    <Recipient placeholder="Address"  value={recipient} onChange={e => setRecipient(e.target.value)}/>
+                    <Recipient placeholder="Address"  
+                    value={recipient} 
+                    onChange={e => {setRecipient(e.target.value)
+                                    validateAddress(e.target.value);
+                    }}/>
                 </Row>
+                {!isAddressValid && recipient && (
+                      <Warning style={{ color: "red", marginTop: "0.5rem", textAlign: "center" }}>
+                        Invalid wallet address
+                      </Warning>
+                  )}
                 <Divider/>
                 <Row>
                     <FieldName>Pay with</FieldName>
@@ -76,8 +104,15 @@ const Transfer =({selectedToken, setAction, thirdWebTokens, walletAddress}) =>{
                     </CoinSelectList>
                 </Row>
             </TransferForm>
+
             <Row>
-                <Continue onClick={() => sendToken(amount, recipient)} >Continue</Continue>
+            <Continue 
+                  onClick={() => sendToken(amount, recipient)}
+                  disabled={!isAddressValid || !amount}  // Button is disabled when necessary
+                  style={{ opacity: (!isAddressValid || !amount) ? 0.5 : 1 }} // Visual feedback
+            >
+                Continue
+            </Continue>
             </Row>
             <Row>
                 <BalanceTitle>{selectedToken.symbol} Balance</BalanceTitle>
