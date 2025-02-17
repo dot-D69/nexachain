@@ -18,9 +18,9 @@ const Wrapper = styled.div`
   max-height: calc(100vh - 64px);
   overflow: auto;
 
-  // ::-webkit-scrollbar{
-  //     display: none;
-  // }
+  &::-webkit-scrollbar{
+      display: none;
+  }
 
   & div {
     border-radius: 0.4rem;
