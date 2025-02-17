@@ -9,7 +9,7 @@ import Link from 'next/link'
 
 Modal.setAppElement('body')
 
-const Header = ({walletAddress, connectWallet}) => {
+const Header = ({walletAddress, connectWallet,sanityTokens,thirdWebTokens}) => {
   const router = useRouter();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   useEffect(() => {
@@ -40,12 +40,11 @@ const Header = ({walletAddress, connectWallet}) => {
               }}
               style={modalStyles}
             >
-              <TransModal/>
+              <TransModal sanityTokens={sanityTokens} thirdWebTokens={thirdWebTokens} walletAddress={walletAddress} />
               <CloseButton onClick={() => setModalIsOpen(false)}>Close</CloseButton>
             </Modal>
             
         </Wrapper>
-        
 
     )
 }
@@ -114,8 +113,8 @@ const modalStyles = {
     marginRight: "-50%",
     transform: "translate(-50%, -50%)",
     background: "#0a0b0d",
-    padding: "20px",
-    borderRadius: "10px",
+    padding: "20px",  //0.8 rem
+    borderRadius: "10px", //1 rem
   },
   overlay: {
     backgroundColor: 'rgba(10,11,13,0.75)'
