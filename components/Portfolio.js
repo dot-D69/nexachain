@@ -9,10 +9,44 @@ import BalanceChart from "./BalanceChart";
 
 
 const Portfolio = ({thirdWebTokens, sanityTokens, walletAddress}) => {
+  const [walletBalance, setWalletBalance] = useState(0)
+  const [sender] = useState(walletAddress)
+
+  const getBalance = async activeTwToken => {
+    const balance = await activeTwToken.erc20.balance(sender)
+
+    return parseInt(balance.displayValue)
+  }
+
+  useEffect(() => {
+    const calculateTotalBalance = async () => {
+      setWalletBalance(0)
+
+      sanityTokens.map(async token => {
+        const currentTwToken = thirdWebTokens.filter(
+          twToken => twToken.address === token.contractAddress,
+        )
+
+        const balance = await getBalance(currentTwToken[0])
+        setWalletBalance(prevState => prevState + balance * token.usdPrice)
+      })
+    }
+
+    if (sanityTokens.length > 0 && thirdWebTokens.length > 0) {
+      calculateTotalBalance()
+    }
+  }, [thirdWebTokens, sanityTokens])
   return (
     <Wrapper>
       <Content>
         {/* Add Balance chart at top */}
+        <Balance>
+              <BalanceTitle>Portfolio balance</BalanceTitle>
+              <BalanceValue>
+                {'$'}
+                {walletBalance.toLocaleString('US')}
+              </BalanceValue>
+        </Balance>
         <BalanceChart coins={coins} walletAddress={walletAddress} sanityTokens={sanityTokens} thirdWebTokens= {thirdWebTokens}  />
       <PortfolioTable>
         {/* Table Title */}
@@ -115,4 +149,16 @@ const Content = styled.div`
   width: 100%;
   max-width: 1000px;
   padding: 2rem 1rem;
+`
+const Balance = styled.div``
+
+const BalanceTitle = styled.div`
+  color: #8a919e;
+  font-size: 0.9rem;
+`
+
+const BalanceValue = styled.div`
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
 `
