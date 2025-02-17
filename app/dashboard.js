@@ -40,30 +40,24 @@ const Dashboard = ({ address }) => {
             setSanityTokens(sanityTokens);
             const thirdWebTokens = await Promise.all(
             sanityTokens.map(async (token) =>{
-                const contract = await sdk.getContract(token.contractAddress).then(module =>module)
-                return contract.contractWrapper.readContract.address;
+                const contract = await sdk.getContract(token.contractAddress)
+                return {
+                    address: contract.getAddress(),
+                    metadata: await contract.metadata.get(), // Fetch token metadata
+                    balance: await contract.erc20.balanceOf(address), // Fetch user balance
+                    erc20: contract.erc20, // Attach ERC-20 functions for transfers
+                };
+
             } )
             );
-            // const thirdWebTokens = await Promise.all(
-            //     sanityTokens.map(async (token) => {
-            //       try {
-            //         // This returns a Thirdweb contract instance
-            //         const contract = await sdk.getContract(token.contractAddress);
-            //         return contract;
-            //       } catch (err) {
-            //         console.warn(`Could not fetch contract at ${token.contractAddress}`, err);
-            //         return null; // Return null if the contract can't be loaded
-            //       }
-            //     })
-            //   );
-            //   setThirdWebTokens(thirdWebTokens.filter(Boolean)); // Filter out any null contracts
-              
             setThirdWebTokens(thirdWebTokens)
         }
         getSanityAndThirdWebTokens();
     }, []);
     console.log('Sanity ->', sanityTokens)
     console.log('Thirdweb ->', thirdWebTokens)
+     // In Dashboard
+    
     return (
         <Wrapper>
             <Sidebar />
