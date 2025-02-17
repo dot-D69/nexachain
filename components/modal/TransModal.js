@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components"; 
 import Transfer from"./Transfer";
 import CoinSelect from "./CoinSelect";
+import { Triangle } from 'react-loader-spinner'
+import Receive from './Receive'
 
 const TransModal = ({sanityTokens,thirdWebTokens, walletAddress}) =>{
     const[action,setAction] = useState('send')
@@ -23,7 +25,13 @@ const TransModal = ({sanityTokens,thirdWebTokens, walletAddress}) =>{
             case 'send':
                 return <Transfer selectedToken={selectedToken} setAction={setAction} thirdWebTokens={thirdWebTokens} walletAddress = {walletAddress}/>
             case 'receive':
-                return <h2> receive </h2>
+                return (
+                    <Receive
+                    setAction={setAction}
+                    selectedToken={selectedToken}
+                    walletAddress={walletAddress}
+                    />
+                )
             case 'select':
                 return( <CoinSelect
                     setAction={setAction}
@@ -33,6 +41,46 @@ const TransModal = ({sanityTokens,thirdWebTokens, walletAddress}) =>{
                     thirdWebTokens={thirdWebTokens}
                     walletAddress={walletAddress}
                 />
+                )
+            case 'Transferring':
+                return (
+                    <div style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center', 
+                        fontSize: '1.5rem' 
+                    }}>
+                        <h2>Transaction in Progress...</h2>
+                        <Triangle
+                            height="80"
+                            width="80"
+                            radius="9"
+                            color="#3773f5"
+                            ariaLabel="loading"
+                            wrapperStyle={{ display: 'flex', justifyContent: 'center' }} // Corrected
+                        />
+                    </div>
+                );
+
+            case 'Transferred':
+                return (
+                    <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        fontSize: '2rem',
+                        fontWeight: '600',
+                        color: '#27ad75',
+                    }}
+                    >
+                    Transaction Complete
+                    </div>
                 )
             default:
                 return <h2> send </h2>
