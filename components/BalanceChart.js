@@ -1,3 +1,4 @@
+
 import styled from 'styled-components';
 import { Line } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
@@ -34,11 +35,6 @@ const BalanceChart = () => {
 
   return (
     <Wrapper>
-      <BalanceContainer>
-        <BalanceText>Total Balance:</BalanceText>
-        <BalanceAmount>${totalBalance.toFixed(2)}</BalanceAmount>
-      </BalanceContainer>
-
       <Line
         data={chartData}
         options={{
@@ -63,25 +59,3 @@ const Wrapper = styled.div`
   padding: 20px;
 `;
 
-const BalanceContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.1); 
-  padding: 8px 16px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-`;
-
-const BalanceText = styled.span`
-  font-size: 16px;
-  font-weight: bold;
-  color: #fff;
-  margin-right: 5px;
-`;
-
-const BalanceAmount = styled.span`
-  font-size: 18px;
-  font-weight: bold;
-  color: #4caf50; 
-`;
