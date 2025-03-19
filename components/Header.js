@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import Modal from 'react-modal'
 import { useRouter } from 'next/navigation'
 import TransModal from './modal/TransModal'
+import TradeModal from './modal/TradeModal'
 import Link from 'next/link'
 
 Modal.setAppElement('body')
@@ -12,6 +13,7 @@ Modal.setAppElement('body')
 const Header = ({walletAddress, connectWallet,sanityTokens,thirdWebTokens}) => {
   const router = useRouter();
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [tradeModalOpen, setTradeModalOpen]= useState(false);
   useEffect(() => {
     if (modalIsOpen) {
       router.push('/?transfer=1');
@@ -19,6 +21,16 @@ const Header = ({walletAddress, connectWallet,sanityTokens,thirdWebTokens}) => {
       router.push('/');
     }
   }, [modalIsOpen, router]);
+
+  // useEffect(() => {
+  //   if (transferModalOpen) {
+  //     router.push("/?trade=1");
+  //   } else {
+  //     router.push("/");
+  //   }
+  // }, [transferModalOpen, router]);
+
+
     return( 
         <Wrapper>
             <Title>Assests</Title>
@@ -29,18 +41,39 @@ const Header = ({walletAddress, connectWallet,sanityTokens,thirdWebTokens}) => {
                   {walletAddress.slice(0,6)}.....{walletAddress.slice(-6)}
                 </WalletAddress>
               </WalletLink>
-                <Button style={{ backgroundColor: '#3773f5', color: '#000'}}>
+                <Button 
+                    style={{ backgroundColor: '#3773f5', color: '#000'}}
+                    onClick={() => setTradeModalOpen(true)}
+                >
                 Buy/Sell
                 </Button>
                 <Button onClick={() => setModalIsOpen(true)}>Send/ Receive</Button>
             </ButtonsContainer>
+
+            <Modal
+              isOpen = {tradeModalOpen}
+              onRequestClose={() => setTradeModalOpen(false)}
+              style={modalStyles}
+            >
+
+              <TradeModal
+                  sanityTokens={sanityTokens}
+                  thirdWebTokens={thirdWebTokens}
+                  walletAddress={walletAddress}
+              />
+              <CloseButton onClick={() => setTradeModalOpen(false)}>Close</CloseButton>
+            </Modal>
 
             <Modal isOpen={modalIsOpen}
               onRequestClose={() => {setModalIsOpen(false);
               }}
               style={modalStyles}
             >
-              <TransModal sanityTokens={sanityTokens} thirdWebTokens={thirdWebTokens} walletAddress={walletAddress} />
+              <TransModal 
+                  sanityTokens={sanityTokens} 
+                  thirdWebTokens={thirdWebTokens} 
+                  walletAddress={walletAddress} 
+              />
               <CloseButton onClick={() => setModalIsOpen(false)}>Close</CloseButton>
             </Modal>
             
