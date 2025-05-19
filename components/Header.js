@@ -22,13 +22,6 @@ const Header = ({walletAddress, connectWallet,sanityTokens,thirdWebTokens}) => {
     }
   }, [modalIsOpen, router]);
 
-  // useEffect(() => {
-  //   if (transferModalOpen) {
-  //     router.push("/?trade=1");
-  //   } else {
-  //     router.push("/");
-  //   }
-  // }, [transferModalOpen, router]);
 
 
     return( 
