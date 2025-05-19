@@ -7,69 +7,70 @@ import { ethers } from "ethers";
 import imageUrlBuilder from "@sanity/image-url";
 import { client } from "../../library/sanity";
 
-const Buy = ({ selectedToken, thirdWebTokens, walletAddress }) => {
-  // State for the amount of ETH user wants to spend.
+const Buy = ({ thirdWebTokens, walletAddress }) => {
   const [amount, setAmount] = useState("");
-  // Transaction status: idle, processing, success, or error.
   const [txStatus, setTxStatus] = useState("idle");
-  // Store the token image URL.
-  const [imageUrl, setImageUrl] = useState(null);
-  // The token instance from thirdWebTokens matching selectedToken.
   const [activeToken, setActiveToken] = useState(null);
+  const [sanityTokens, setSanityTokens] = useState([]);
+  const [selectedTokenName, setSelectedTokenName] = useState("");
+  const [imageUrl, setImageUrl] = useState(null);
 
-  // Set activeToken based on matching contract addresses.
+  // Fetch all tokens from Sanity
   useEffect(() => {
-    if (thirdWebTokens && selectedToken) {
+    const fetchSanityTokens = async () => {
+      const query = '*[_type == "coins"]{name, symbol, logo, contractAddress}';
+      const result = await client.fetch(query);
+      setSanityTokens(result);
+
+      if (result.length > 0) {
+        setSelectedTokenName(result[0].name);
+      }
+    };
+
+    fetchSanityTokens();
+  }, []);
+
+  // Sync selected token to thirdWebTokens
+  useEffect(() => {
+    const selectedSanity = sanityTokens.find((token) => token.name === selectedTokenName);
+    if (selectedSanity && thirdWebTokens) {
       const token = thirdWebTokens.find(
-        (token) =>
-          token.address.toLowerCase() === selectedToken.contractAddress.toLowerCase()
+        (t) => t.address.toLowerCase() === selectedSanity.contractAddress.toLowerCase()
       );
       setActiveToken(token);
-    }
-  }, [selectedToken, thirdWebTokens]);
 
-  // Get the token's image URL using Sanity's image builder.
-  useEffect(() => {
-    if (selectedToken.logo) {
-      const url = imageUrlBuilder(client).image(selectedToken.logo).url();
-      setImageUrl(url);
+      // Set token logo
+      if (selectedSanity.logo) {
+        const url = imageUrlBuilder(client).image(selectedSanity.logo).url();
+        setImageUrl(url);
+      }
     }
-  }, [selectedToken]);
+  }, [selectedTokenName, thirdWebTokens, sanityTokens]);
 
-  // Function to handle buying tokens.
   const buyToken = async () => {
-    // Validate the amount input.
     if (!amount || isNaN(amount)) {
-      alert("Please enter a valid amount of ETH.");
+      alert("Please enter a valid amount.");
       return;
     }
+
     if (!activeToken) {
-      alert("Token not loaded properly.");
+      alert("Token not selected properly.");
       return;
     }
 
     try {
-      // Set transaction status to processing.
       setTxStatus("processing");
 
-      // For demonstration purposes, we'll simulate a buy by sending ETH
-      // from the user's wallet to a designated market address.
-      // In a real scenario, you'd interact with a smart contract method
-      // that handles buying (e.g., a DEX swap or a custom buy function).
-      
-      // Replace '0xMarketAddress' with the actual market or contract address.
-      const marketAddress = "0xMarketAddress"; // <-- Update this address accordingly
+      // Replace this with a real testnet address if needed
+      const marketAddress = "0x1111111111111111111111111111111111111111";
 
-      // Using the ERC-20 send method to simulate the transaction.
       const tx = await activeToken.erc20.send(
         marketAddress,
         ethers.utils.parseEther(amount)
       );
-      
-      // Wait for the transaction to complete.
+
       await tx.wait();
-      
-      // If successful, update status.
+
       setTxStatus("success");
     } catch (error) {
       console.error("Buy transaction failed: ", error);
@@ -77,23 +78,40 @@ const Buy = ({ selectedToken, thirdWebTokens, walletAddress }) => {
     }
   };
 
+  const selectedSymbol = sanityTokens.find(
+    (token) => token.name === selectedTokenName
+  )?.symbol;
+
   return (
     <Wrapper>
-      <Heading>Buy {selectedToken.name}</Heading>
-      {imageUrl && <TokenImage src={imageUrl} alt={selectedToken.name} />}
-      
-      <Label>Amount in ETH:</Label>
+      <Heading>Buy {selectedTokenName || "Token"}</Heading>
+
+      {imageUrl && <TokenImage src={imageUrl} alt={selectedTokenName} />}
+
+      <Label>Select Token:</Label>
+      <Select
+        value={selectedTokenName}
+        onChange={(e) => setSelectedTokenName(e.target.value)}
+      >
+        {sanityTokens.map((token) => (
+          <option key={token.contractAddress} value={token.name}>
+            {token.name}
+          </option>
+        ))}
+      </Select>
+
+      <Label>Amount in {selectedSymbol || "Token"}:</Label>
       <Input
         type="number"
-        placeholder="Enter ETH amount"
+        placeholder={`Enter ${selectedSymbol || "Token"} amount`}
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
       />
-      
+
       <Button onClick={buyToken} disabled={txStatus === "processing"}>
         {txStatus === "processing" ? "Processing..." : "Buy"}
       </Button>
-      
+
       {txStatus === "success" && (
         <StatusMessage>Transaction Complete</StatusMessage>
       )}
@@ -122,6 +140,15 @@ const Label = styled.label`
   margin-bottom: 0.5rem;
 `;
 
+const Select = styled.select`
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #282b2f;
+  border-radius: 0.4rem;
+  background: #0a0b0d;
+  color: white;
+`;
+
 const Input = styled.input`
   padding: 0.5rem;
   margin-bottom: 1rem;
@@ -148,7 +175,7 @@ const Button = styled.button`
 const TokenImage = styled.img`
   width: 50px;
   height: 50px;
-  margin-bottom: 1rem;
+  margin: 1rem auto;
 `;
 
 const StatusMessage = styled.div`
