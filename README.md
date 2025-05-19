@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 NexaChain - Decentralized Crypto Exchange
 
-## Getting Started
+![NexaChain Banner](./public/cover.png)
 
-First, run the development server:
+**NexaChain** is a decentralized exchange (DEX) platform for buying, selling, and storing cryptocurrencies. Built using **Next.js**, **Thirdweb**, and **Sanity.io**, it enables seamless interaction with ERC20 tokens on the **Sepolia Testnet** via **MetaMask**.
 
-```bash
+---
+
+## ⚙️ Tech Stack
+
+- **Frontend:** Next.js 13+ (App Router)
+- **Blockchain SDK:** Thirdweb
+- **Wallet Integration:** MetaMask
+- **Database & CMS:** Sanity.io
+- **Styling:** styled-components
+- **Deployment:** Vercel
+
+---
+
+## 🌟 Features
+
+- 🔐 Connect Wallet using MetaMask
+- 🪙 Buy, Send, and Receive ERC20 Tokens
+- 💹 Real-time Token Balances in USD
+- 🧾 Token Metadata fetched from Sanity
+- 📊 Portfolio Dashboard with Pie Charts
+- ⚡ Live blockchain interactions via Thirdweb SDK
+- 🧪 Built and tested on Sepolia Testnet
+
+---
+
+## 📸 Screenshots
+
+| Portfolio View | Send Token Modal |
+|----------------|-----------------|
+| ![Portfolio](./public/portfolio.png) | ![Buy](./public/sell.png) |
+
+---
+
+## 🚀 Getting Started
+
+Clone the repo and install dependencies:
+
+```
+git clone https://github.com/dot-D69/nexachain.git
+cd nexachain
+npm install
+
+``` 
+
+Start the development server:
+
+```
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+Open http://localhost:3000 in your browser.
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🧾 Setup Requirements
+✅ MetaMask Extension Installed
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+🌐 Connected to Sepolia Testnet
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🪙 Tokens created using Thirdweb
 
-## Learn More
+📦 Optional: Sanity Project for Token Metadata (fork mine if needed)
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+📂 Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+nexachain/
+│
+├── app/                   # App Router pages
+├── components/            # UI Components
+├── lib/                   # Utility functions
+├── public/                # Static files and screenshots
+├── styles/                # Global CSS / styled-components
+└── sanity/                # (Optional) Sanity schemas
 
-## Deploy on Vercel
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+⭐️ Show Some Criticism
+If you find anything worth improving, please do:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+🗣 Share feedback
+
+🔁 Fork and extend it!
