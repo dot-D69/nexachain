@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from "react";
+import { useWeb3 } from '@3rdweb/hooks';
 import styled from "styled-components";
 import { coins } from "../static/coin";
 import Coin from "./Coin";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import BalanceChart from "./BalanceChart";
+import { getTokenBalances } from "../library/getTokenBalance";
 
 
 
@@ -17,6 +19,23 @@ const Portfolio = ({thirdWebTokens, sanityTokens, walletAddress}) => {
 
     return parseInt(balance.displayValue)
   }
+
+  const { address, provider } = useWeb3();
+  const [tokenData, setTokenData] = useState([]);
+
+  useEffect(() => {
+    const fetchBalances = async () => {
+      if (!address || !provider) return;
+  
+      const balances = await getTokenBalances(address, provider);
+      console.log("Returned token balances:", balances);
+      setTokenData(balances);
+    };
+  
+    fetchBalances();
+  }, [address, provider]);
+  
+
 
   useEffect(() => {
     const calculateTotalBalance = async () => {
@@ -39,7 +58,6 @@ const Portfolio = ({thirdWebTokens, sanityTokens, walletAddress}) => {
   return (
     <Wrapper>
       <Content>
-        {/* Add Balance chart at top */}
         <Balance>
               <BalanceTitle>Portfolio balance</BalanceTitle>
               <BalanceValue>
@@ -72,13 +90,39 @@ const Portfolio = ({thirdWebTokens, sanityTokens, walletAddress}) => {
 
           {/* Table Data */}
           <TableBody>
-            {coins.map((coin, index) => (
-              <React.Fragment key={index}>
-                <Coin coin={coin} />
-                <Divider />
-              </React.Fragment>
-            ))}
-          </TableBody>
+            {tokenData.length > 0 ? (
+            tokenData.map((token, index) => (
+            <React.Fragment key={index}>
+             <AssetRow>
+              <AssetInfo style={{ flex: 3 }}>
+              {token.logo && (
+                <TokenLogo src={token.logo} alt={token.symbol} />
+              )}
+              <div>
+                <AssetName>{token.name}</AssetName>
+                <AssetSymbol>{token.symbol}</AssetSymbol>
+              </div>
+            </AssetInfo>
+            <AssetValue style={{ flex: 2, textAlign: "right" }}>
+            {token.balance} {token.symbol}
+          </AssetValue>
+          <AssetPrice style={{ flex: 1.5, textAlign: "right" }}>
+            ${parseFloat(token.usdPrice).toFixed(2)}
+          </AssetPrice>
+          <AssetAllocation style={{ flex: 1, textAlign: "right" }}>
+            {token.allocation ? `${token.allocation}%` : "N/A"}
+          </AssetAllocation>
+          <AssetActions style={{ flex: 0.5, textAlign: "center" }}>
+            <BsThreeDotsVertical />
+          </AssetActions>
+        </AssetRow>
+        <Divider />
+      </React.Fragment>
+    ))
+  ) : (
+    <div>Loading assets...</div>
+  )}
+</TableBody>
         </Table>
       </PortfolioTable>
       </Content>
@@ -162,3 +206,52 @@ const BalanceValue = styled.div`
   font-weight: 700;
   margin: 0.5rem 0;
 `
+
+const AssetRow = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem;
+`;
+
+const AssetInfo = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const TokenLogo = styled.img`
+  width: 30px;
+  height: 30px;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+`;
+
+const AssetName = styled.div`
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+`;
+
+const AssetSymbol = styled.div`
+  font-size: 0.9rem;
+  color: #8a919e;
+`;
+
+const AssetValue = styled.div`
+  font-size: 1.2rem;
+  color: white;
+`;
+
+const AssetPrice = styled.div`
+  font-size: 1.2rem;
+  color: white;
+`;
+
+const AssetAllocation = styled.div`
+  font-size: 1.2rem;
+  color: white;
+`;
+
+const AssetActions = styled.div`
+  font-size: 1.2rem;
+  color: #c7cbd6;
+`;
